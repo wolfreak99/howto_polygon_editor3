@@ -151,14 +151,6 @@ namespace howto_polygon_editor3
             picCanvas.Invalidate();
         }
 
-        // Finish moving the selected corner.
-        private void picCanvas_MouseUp_MovingCorner(object sender, MouseEventArgs e)
-        {
-            picCanvas.MouseMove += picCanvas_MouseMove_NotDrawing;
-            picCanvas.MouseMove -= picCanvas_MouseMove_MovingCorner;
-            picCanvas.MouseUp -= picCanvas_MouseUp_MovingCorner;
-        }
-
         // Move the selected polygon.
         private void picCanvas_MouseMove_MovingPolygon(object sender, MouseEventArgs e)
         {
@@ -185,14 +177,6 @@ namespace howto_polygon_editor3
 
             // Redraw.
             picCanvas.Invalidate();
-        }
-
-        // Finish moving the selected polygon.
-        private void picCanvas_MouseUp_MovingPolygon(object sender, MouseEventArgs e)
-        {
-            picCanvas.MouseMove += picCanvas_MouseMove_NotDrawing;
-            picCanvas.MouseMove -= picCanvas_MouseMove_MovingPolygon;
-            picCanvas.MouseUp -= picCanvas_MouseUp_MovingPolygon;
         }
 
         // See if we're over a polygon or corner point.
@@ -225,6 +209,22 @@ namespace howto_polygon_editor3
             {
                 picCanvas.Cursor = new_cursor;
             }
+        }
+
+        // Finish moving the selected corner.
+        private void picCanvas_MouseUp_MovingCorner(object sender, MouseEventArgs e)
+        {
+            picCanvas.MouseMove += picCanvas_MouseMove_NotDrawing;
+            picCanvas.MouseMove -= picCanvas_MouseMove_MovingCorner;
+            picCanvas.MouseUp -= picCanvas_MouseUp_MovingCorner;
+        }
+
+        // Finish moving the selected polygon.
+        private void picCanvas_MouseUp_MovingPolygon(object sender, MouseEventArgs e)
+        {
+            picCanvas.MouseMove += picCanvas_MouseMove_NotDrawing;
+            picCanvas.MouseMove -= picCanvas_MouseMove_MovingPolygon;
+            picCanvas.MouseUp -= picCanvas_MouseUp_MovingPolygon;
         }
 
         // Redraw old polygons in blue. Draw the new polygon in green.
