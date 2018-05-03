@@ -26,16 +26,16 @@ namespace howto_polygon_editor3
         private const int over_dist_squared = object_radius * object_radius;
 
         // Each polygon is represented by a List<Point>.
-        private List<List<Point>> Polygons = new List<List<Point>>();
+        private List<Polygon> Polygons = new List<Polygon>();
 
         // Points for the new polygon.
-        private List<Point> NewPolygon = null;
+        private Polygon NewPolygon = null;
 
         // The current mouse position while drawing a new polygon.
         private Point NewPoint;
 
         // The polygon and index of the corner we are moving.
-        private List<Point> MovingPolygon = null;
+        private Polygon MovingPolygon = null;
         private int MovingPoint = -1;
         private int OffsetX, OffsetY;
 
@@ -55,7 +55,7 @@ namespace howto_polygon_editor3
         {
             // See what we're over.
             Point mouse_pt = SnapToGrid(e.Location);
-            List<Point> hit_polygon;
+            Polygon hit_polygon;
             int hit_point, hit_point2;
             Point closest_point;
 
@@ -120,7 +120,7 @@ namespace howto_polygon_editor3
             else
             {
                 // Start a new polygon.
-                NewPolygon = new List<Point>();
+                NewPolygon = new Polygon();
                 NewPoint = mouse_pt;
                 NewPolygon.Add(mouse_pt);
 
@@ -202,7 +202,7 @@ namespace howto_polygon_editor3
 
             // See what we're over.
             Point mouse_pt = SnapToGrid(e.Location);
-            List<Point> hit_polygon;
+            Polygon hit_polygon;
             int hit_point, hit_point2;
             Point closest_point;
 
@@ -234,7 +234,7 @@ namespace howto_polygon_editor3
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Draw the old polygons.
-            foreach (List<Point> polygon in Polygons)
+            foreach (Polygon polygon in Polygons)
             {
                 // Draw the polygon.
                 e.Graphics.FillPolygon(Brushes.White, polygon.ToArray());
@@ -275,10 +275,10 @@ namespace howto_polygon_editor3
         }
 
         // See if the mouse is over a corner point.
-        private bool MouseIsOverCornerPoint(Point mouse_pt, out List<Point> hit_polygon, out int hit_pt)
+        private bool MouseIsOverCornerPoint(Point mouse_pt, out Polygon hit_polygon, out int hit_pt)
         {
             // See if we're over a corner point.
-            foreach (List<Point> polygon in Polygons)
+            foreach (Polygon polygon in Polygons)
             {
                 // See if we're over one of the polygon's corner points.
                 for (int i = 0; i < polygon.Count; i++)
@@ -300,13 +300,13 @@ namespace howto_polygon_editor3
         }
 
         // See if the mouse is over a polygon's edge.
-        private bool MouseIsOverEdge(Point mouse_pt, out List<Point> hit_polygon, out int hit_pt1, out int hit_pt2, out Point closest_point)
+        private bool MouseIsOverEdge(Point mouse_pt, out Polygon hit_polygon, out int hit_pt1, out int hit_pt2, out Point closest_point)
         {
             // Examine each polygon.
             // Examine them in reverse order to check the ones on top first.
             for (int pgon = Polygons.Count - 1; pgon >= 0; pgon--)
             {
-                List<Point> polygon = Polygons[pgon];
+                Polygon polygon = Polygons[pgon];
 
                 // See if we're over one of the polygon's segments.
                 for (int p1 = 0; p1 < polygon.Count; p1++)
@@ -337,7 +337,7 @@ namespace howto_polygon_editor3
         }
 
         // See if the mouse is over a polygon's body.
-        private bool MouseIsOverPolygon(Point mouse_pt, out List<Point> hit_polygon)
+        private bool MouseIsOverPolygon(Point mouse_pt, out Polygon hit_polygon)
         {
             // Examine each polygon.
             // Examine them in reverse order to check the ones on top first.
