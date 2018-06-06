@@ -18,10 +18,6 @@ namespace howto_polygon_editor3
             InitializeComponent();
         }
 
-        // We're over an object if the distance squared
-        // between the mouse and the object is less than this.
-        private const int over_dist_squared = Polygon.object_radius * Polygon.object_radius;
-
         // Each polygon is represented by a List<Point>.
         private List<Polygon> Polygons = new List<Polygon>();
 
@@ -79,7 +75,7 @@ namespace howto_polygon_editor3
                     }
                 }
             }
-            else if (MouseIsOverCornerPoint(mouse_pt, out hit_polygon, out hit_point))
+            else if (MouseUtils.MouseIsOverCornerPoint(mouse_pt, Polygons, out hit_polygon, out hit_point))
             {
                 // Start dragging this corner.
                 picCanvas.MouseMove -= picCanvas_MouseMove_NotDrawing;
@@ -94,13 +90,13 @@ namespace howto_polygon_editor3
                 OffsetX = hit_polygon[hit_point].X - e.X;
                 OffsetY = hit_polygon[hit_point].Y - e.Y;
             }
-            else if (MouseIsOverEdge(mouse_pt, out hit_polygon,
+            else if (MouseUtils.MouseIsOverEdge(mouse_pt, Polygons, out hit_polygon,
                 out hit_point, out hit_point2, out closest_point))
             {
                 // Add a point.
                 hit_polygon.Insert(hit_point + 1, closest_point);
             }
-            else if (MouseIsOverPolygon(mouse_pt, out hit_polygon))
+            else if (MouseUtils.MouseIsOverPolygon(mouse_pt, Polygons, out hit_polygon))
             {
                 // Start moving this polygon.
                 picCanvas.MouseMove -= picCanvas_MouseMove_NotDrawing;
@@ -187,16 +183,16 @@ namespace howto_polygon_editor3
             int hit_point, hit_point2;
             Point closest_point;
 
-            if (MouseIsOverCornerPoint(mouse_pt, out hit_polygon, out hit_point))
+            if (MouseUtils.MouseIsOverCornerPoint(mouse_pt, Polygons, out hit_polygon, out hit_point))
             {
                 new_cursor = Cursors.Arrow;
             }
-            else if (MouseIsOverEdge(mouse_pt, out hit_polygon,
+            else if (MouseUtils.MouseIsOverEdge(mouse_pt, Polygons, out hit_polygon,
                 out hit_point, out hit_point2, out closest_point))
             {
                 new_cursor = AddPointCursor;
             }
-            else if (MouseIsOverPolygon(mouse_pt, out hit_polygon))
+            else if (MouseUtils.MouseIsOverPolygon(mouse_pt, Polygons, out hit_polygon))
             {
                 new_cursor = Cursors.Hand;
             }
@@ -242,147 +238,7 @@ namespace howto_polygon_editor3
                 NewPolygon.DrawNew(e, NewPoint);
             }
         }
-
-        // See if the mouse is over a corner point.
-        private bool MouseIsOverCornerPoint(Point mouse_pt, out Polygon hit_polygon, out int hit_pt)
-        {
-            // See if we're over a corner point.
-            foreach (Polygon polygon in Polygons)
-            {
-                // See if we're over one of the polygon's corner points.
-                for (int i = 0; i < polygon.Count; i++)
-                {
-                    // See if we're over this point.
-                    if (FindDistanceToPointSquared(polygon[i], mouse_pt) < over_dist_squared)
-                    {
-                        // We're over this point.
-                        hit_polygon = polygon;
-                        hit_pt = i;
-                        return true;
-                    }
-                }
-            }
-
-            hit_polygon = null;
-            hit_pt = -1;
-            return false;
-        }
-
-        // See if the mouse is over a polygon's edge.
-        private bool MouseIsOverEdge(Point mouse_pt, out Polygon hit_polygon, out int hit_pt1, out int hit_pt2, out Point closest_point)
-        {
-            // Examine each polygon.
-            // Examine them in reverse order to check the ones on top first.
-            for (int pgon = Polygons.Count - 1; pgon >= 0; pgon--)
-            {
-                Polygon polygon = Polygons[pgon];
-
-                // See if we're over one of the polygon's segments.
-                for (int p1 = 0; p1 < polygon.Count; p1++)
-                {
-                    // Get the index of the polygon's next point.
-                    int p2 = (p1 + 1) % polygon.Count;
-
-                    // See if we're over the segment between these points.
-                    PointF closest;
-                    if (FindDistanceToSegmentSquared(mouse_pt,
-                        polygon[p1], polygon[p2], out closest) < over_dist_squared)
-                    {
-                        // We're over this segment.
-                        hit_polygon = polygon;
-                        hit_pt1 = p1;
-                        hit_pt2 = p2;
-                        closest_point = Point.Round(closest);
-                        return true;
-                    }
-                }
-            }
-
-            hit_polygon = null;
-            hit_pt1 = -1;
-            hit_pt2 = -1;
-            closest_point = new Point(0, 0);
-            return false;
-        }
-
-        // See if the mouse is over a polygon's body.
-        private bool MouseIsOverPolygon(Point mouse_pt, out Polygon hit_polygon)
-        {
-            // Examine each polygon.
-            // Examine them in reverse order to check the ones on top first.
-            for (int i = Polygons.Count - 1; i >= 0; i--)
-            {
-                // Make a GraphicsPath representing the polygon.
-                GraphicsPath path = new GraphicsPath();
-                path.AddPolygon(Polygons[i].ToArray());
-
-                // See if the point is inside the GraphicsPath.
-                if (path.IsVisible(mouse_pt))
-                {
-                    hit_polygon = Polygons[i];
-                    return true;
-                }
-            }
-
-            hit_polygon = null;
-            return false;
-        }
-
-        #region DistanceFunctions
-
-        // Calculate the distance squared between two points.
-        private int FindDistanceToPointSquared(Point pt1, Point pt2)
-        {
-            int dx = pt1.X - pt2.X;
-            int dy = pt1.Y - pt2.Y;
-            return dx * dx + dy * dy;
-        }
-
-        // Calculate the distance squared between
-        // point pt and the segment p1 --> p2.
-        private double FindDistanceToSegmentSquared(PointF pt, PointF p1, PointF p2, out PointF closest)
-        {
-            float dx = p2.X - p1.X;
-            float dy = p2.Y - p1.Y;
-            if ((dx == 0) && (dy == 0))
-            {
-                // It's a point not a line segment.
-                closest = p1;
-                dx = pt.X - p1.X;
-                dy = pt.Y - p1.Y;
-                return Math.Sqrt(dx * dx + dy * dy);
-            }
-
-            // Calculate the t that minimizes the distance.
-            float t = ((pt.X - p1.X) * dx + (pt.Y - p1.Y) * dy) / (dx * dx + dy * dy);
-
-            // See if this represents one of the segment's
-            // end points or a point in the middle.
-            if (t < 0)
-            {
-                closest = new PointF(p1.X, p1.Y);
-                dx = pt.X - p1.X;
-                dy = pt.Y - p1.Y;
-            }
-            else if (t > 1)
-            {
-                closest = new PointF(p2.X, p2.Y);
-                dx = pt.X - p2.X;
-                dy = pt.Y - p2.Y;
-            }
-            else
-            {
-                closest = new PointF(p1.X + t * dx, p1.Y + t * dy);
-                dx = pt.X - closest.X;
-                dy = pt.Y - closest.Y;
-            }
-
-            // return Math.Sqrt(dx * dx + dy * dy);
-            return dx * dx + dy * dy;
-        }
-
-        #endregion DistanceFunctions
-
+        
         // The grid spacing.
         private const int GridGap = 8;
 
