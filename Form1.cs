@@ -18,12 +18,9 @@ namespace howto_polygon_editor3
             InitializeComponent();
         }
 
-        // The "size" of an object for mouse over purposes.
-        private const int object_radius = 3;
-
         // We're over an object if the distance squared
         // between the mouse and the object is less than this.
-        private const int over_dist_squared = object_radius * object_radius;
+        private const int over_dist_squared = Polygon.object_radius * Polygon.object_radius;
 
         // Each polygon is represented by a List<Point>.
         private List<Polygon> Polygons = new List<Polygon>();
@@ -232,45 +229,17 @@ namespace howto_polygon_editor3
         private void picCanvas_Paint(object sender, PaintEventArgs e)
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-
+            
             // Draw the old polygons.
             foreach (Polygon polygon in Polygons)
             {
-                // Draw the polygon.
-                e.Graphics.FillPolygon(Brushes.White, polygon.ToArray());
-                e.Graphics.DrawPolygon(Pens.Blue, polygon.ToArray());
-
-                // Draw the corners.
-                foreach (Point corner in polygon)
-                {
-                    Rectangle rect = new Rectangle(
-                        corner.X - object_radius, corner.Y - object_radius,
-                        2 * object_radius + 1, 2 * object_radius + 1);
-                    e.Graphics.FillEllipse(Brushes.White, rect);
-                    e.Graphics.DrawEllipse(Pens.Black, rect);
-                }
+                polygon.Draw(e);
             }
 
             // Draw the new polygon.
             if (NewPolygon != null)
             {
-                // Draw the new polygon.
-                if (NewPolygon.Count > 1)
-                {
-                    e.Graphics.DrawLines(Pens.Green, NewPolygon.ToArray());
-                }
-
-                // Draw the newest edge.
-                if (NewPolygon.Count > 0)
-                {
-                    using (Pen dashed_pen = new Pen(Color.Green))
-                    {
-                        dashed_pen.DashPattern = new float[] { 3, 3 };
-                        e.Graphics.DrawLine(dashed_pen,
-                            NewPolygon[NewPolygon.Count - 1],
-                            NewPoint);
-                    }
-                }
+                NewPolygon.DrawNew(e, NewPoint);
             }
         }
 
