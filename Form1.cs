@@ -95,6 +95,19 @@ namespace howto_polygon_editor3
             {
                 // Add a point.
                 hit_polygon.Insert(hit_point + 1, closest_point);
+
+                // Start dragging the new corner.
+                picCanvas.MouseMove -= picCanvas_MouseMove_NotDrawing;
+                picCanvas.MouseMove += picCanvas_MouseMove_MovingCorner;
+                picCanvas.MouseUp += picCanvas_MouseUp_MovingCorner;
+
+                // Remember the polygon and new point number.
+                MovingPolygon = hit_polygon;
+                MovingPoint = hit_point + 1;
+
+                // Remember the offset from the mouse to the point.
+                OffsetX = hit_polygon[hit_point + 1].X - e.X;
+                OffsetY = hit_polygon[hit_point + 1].Y - e.Y;
             }
             else if (MouseUtils.MouseIsOverPolygon(mouse_pt, Polygons, out hit_polygon))
             {
