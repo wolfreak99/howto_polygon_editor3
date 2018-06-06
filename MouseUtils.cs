@@ -12,7 +12,7 @@ namespace howto_polygon_editor3
         // We're over an object if the distance squared
         // between the mouse and the object is less than this.
         private const int over_dist_squared = Polygon.object_radius * Polygon.object_radius;
-
+        
         // See if the mouse is over a corner point.
         public static bool MouseIsOverCornerPoint(Point mouse_pt, List<Polygon> polygons, out Polygon hit_polygon, out int hit_pt)
         {
@@ -36,6 +36,13 @@ namespace howto_polygon_editor3
             hit_polygon = null;
             hit_pt = -1;
             return false;
+        }
+
+        public static bool MouseIsOverCornerPoint(Point mouse_pt, List<Polygon> polygons)
+        {
+            Polygon hit_polygon;
+            int hit_pt;
+            return MouseIsOverCornerPoint(mouse_pt, polygons, out hit_polygon, out hit_pt);
         }
 
         // See if the mouse is over a polygon's edge.
@@ -75,6 +82,14 @@ namespace howto_polygon_editor3
             return false;
         }
 
+        public static bool MouseIsOverEdge(Point mouse_pt, List<Polygon> polygons)
+        {
+            Polygon hit_polygon;
+            int hit_pt1, hit_pt2;
+            Point closest_point;
+            return MouseIsOverEdge(mouse_pt, polygons, out hit_polygon, out hit_pt1, out hit_pt2, out closest_point);
+        }
+
         // See if the mouse is over a polygon's body.
         public static bool MouseIsOverPolygon(Point mouse_pt, List<Polygon> polygons, out Polygon hit_polygon)
         {
@@ -96,6 +111,12 @@ namespace howto_polygon_editor3
 
             hit_polygon = null;
             return false;
+        }
+
+        public static bool MouseIsOverPolygon(Point mouse_pt, List<Polygon> polygons)
+        {
+            Polygon hit_polygon;
+            return MouseIsOverPolygon(mouse_pt, polygons, out hit_polygon);
         }
 
         #region DistanceFunctions

@@ -179,20 +179,16 @@ namespace howto_polygon_editor3
 
             // See what we're over.
             Point mouse_pt = SnapToGrid(e.Location);
-            Polygon hit_polygon;
-            int hit_point, hit_point2;
-            Point closest_point;
 
-            if (MouseUtils.MouseIsOverCornerPoint(mouse_pt, Polygons, out hit_polygon, out hit_point))
+            if (MouseUtils.MouseIsOverCornerPoint(mouse_pt, Polygons))
             {
                 new_cursor = Cursors.Arrow;
             }
-            else if (MouseUtils.MouseIsOverEdge(mouse_pt, Polygons, out hit_polygon,
-                out hit_point, out hit_point2, out closest_point))
+            else if (MouseUtils.MouseIsOverEdge(mouse_pt, Polygons))
             {
                 new_cursor = AddPointCursor;
             }
-            else if (MouseUtils.MouseIsOverPolygon(mouse_pt, Polygons, out hit_polygon))
+            else if (MouseUtils.MouseIsOverPolygon(mouse_pt, Polygons))
             {
                 new_cursor = Cursors.Hand;
             }
