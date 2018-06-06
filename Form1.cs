@@ -161,12 +161,7 @@ namespace howto_polygon_editor3
             if (dx == 0 && dy == 0) return;
 
             // Move the polygon.
-            for (int i = 0; i < MovingPolygon.Count; i++)
-            {
-                MovingPolygon[i] = new Point(
-                    MovingPolygon[i].X + dx,
-                    MovingPolygon[i].Y + dy);
-            }
+            MovingPolygon.Move(new Point(dx, dy));
 
             // Redraw.
             picCanvas.Invalidate();

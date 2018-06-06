@@ -52,6 +52,13 @@ namespace howto_polygon_editor3
             return points.GetEnumerator();
         }
 
+        public void Move(Point offset)
+        {
+            for (int i = 0; i < points.Count; i++) {
+                points[i] = new Point(points[i].X + offset.X, points[i].Y + offset.Y);
+            }
+        }
+
         public void Draw(PaintEventArgs e)
         {
             // Draw the polygon.
